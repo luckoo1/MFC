@@ -33,4 +33,6 @@ protected:
 	//virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnBnClickedShowMsgBtn();
+	afx_msg void OnEnChangeInputMsgEdit();
 };

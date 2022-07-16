@@ -32,6 +32,8 @@ BEGIN_MESSAGE_MAP(CPracMFCDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_LBUTTONDOWN()
+	ON_BN_CLICKED(IDC_SHOW_MSG_BTN, &CPracMFCDlg::OnBnClickedShowMsgBtn)
+	ON_EN_CHANGE(IDC_INPUT_MSG_EDIT, &CPracMFCDlg::OnEnChangeInputMsgEdit)
 END_MESSAGE_MAP()
 
 
@@ -140,4 +142,48 @@ void CPracMFCDlg::OnLButtonDown(UINT nFlags, CPoint point) // nFlags가 wParam,p
 	}
 
 	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+
+void CPracMFCDlg::OnBnClickedShowMsgBtn()
+{
+#if 0
+	wchar_t str[64];/*128Byte*/
+
+	GetDlgItemText(IDC_INPUT_MSG_EDIT,str,64);
+	/*
+	"대화상자(dlg)의 item(도구)의 text를 얻겠다"라는 함수
+	IDC_INPUT_MSG_EDIT의 값을 str로 복사하겠다.
+	(주소,주소,크기)순으로 적었다.
+	"IDC_INPUT_MSG_EDIT"대신 1000적어도 된다.
+	*/
+	AfxMessageBox(str);
+	/*
+	str이 메세지 박스로 출력됨
+	*/
+#endif
+	/*CString써서 길이제한 없애자*/
+	CString str,show_str;
+	GetDlgItemText(IDC_INPUT_MSG_EDIT, str);
+	/*GetDlgItemText가 호출되는데 오버라이딩으로 길이를 안받는 함수가 호출된다.*/
+
+	show_str= L"사용자가 입력한 문자열 : %s" + str;
+	/*
+	show_str.Format(L"사용자가 입력한 문자열 : %s", str);
+	Format써서 printf처럼 받음,L쓴건 유니코드를 위해서 사용
+	*/
+	AfxMessageBox(show_str);
+
+}
+
+
+void CPracMFCDlg::OnEnChangeInputMsgEdit()
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
 }
