@@ -35,4 +35,11 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnBnClickedShowMsgBtn();
 	afx_msg void OnEnChangeInputMsgEdit();
+	afx_msg void OnBnClickedReadBtn();
+	afx_msg void OnBnClickedWriteBtn();
+	afx_msg void OnEnChangeEdit1();
+#if 0
+protected:
+	CString m_my_string;
+#endif
 };

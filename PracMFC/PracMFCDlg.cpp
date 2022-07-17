@@ -19,6 +19,10 @@
 
 CPracMFCDlg::CPracMFCDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_PRACMFC_DIALOG, pParent)
+#if 0
+	//1.
+	, m_my_string(_T("")) /*m_my_string 초기화 코드*/
+#endif
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -26,6 +30,10 @@ CPracMFCDlg::CPracMFCDlg(CWnd* pParent /*=nullptr*/)
 void CPracMFCDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+#if 0
+	//1.
+	DDX_Text(pDX, IDC_EDIT1, m_my_string);  /*IDC_EDIT1와 m_my_string을 연결*/
+#endif
 }
 
 BEGIN_MESSAGE_MAP(CPracMFCDlg, CDialogEx)
@@ -34,6 +42,9 @@ BEGIN_MESSAGE_MAP(CPracMFCDlg, CDialogEx)
 	ON_WM_LBUTTONDOWN()
 	ON_BN_CLICKED(IDC_SHOW_MSG_BTN, &CPracMFCDlg::OnBnClickedShowMsgBtn)
 	ON_EN_CHANGE(IDC_INPUT_MSG_EDIT, &CPracMFCDlg::OnEnChangeInputMsgEdit)
+	ON_BN_CLICKED(IDC_READ_BTN, &CPracMFCDlg::OnBnClickedReadBtn)
+	ON_BN_CLICKED(IDC_WRITE_BTN, &CPracMFCDlg::OnBnClickedWriteBtn)
+	ON_EN_CHANGE(IDC_EDIT1, &CPracMFCDlg::OnEnChangeEdit1)
 END_MESSAGE_MAP()
 
 
@@ -179,6 +190,139 @@ void CPracMFCDlg::OnBnClickedShowMsgBtn()
 
 
 void CPracMFCDlg::OnEnChangeInputMsgEdit()
+{
+	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
+	// CDialogEx::OnInitDialog() 함수를 재지정 
+	//하고 마스크에 OR 연산하여 설정된 ENM_CHANGE 플래그를 지정하여 CRichEditCtrl().SetEventMask()를 호출하지 않으면
+	// 이 알림 메시지를 보내지 않습니다.
+
+	// TODO:  여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}
+
+
+
+void CPracMFCDlg::OnBnClickedReadBtn()
+{
+#if 0
+	//1.
+	UpdateData(TRUE); //컨트롤 -> 변수
+	/*컨트롤에 있는값을 m_my_string에 내려오겠다는 명령 */
+	AfxMessageBox(m_my_string);//m_my_string값 출력해보겠다.
+	/*
+	DDX_Text(pDX, IDC_EDIT1, m_my_string);이 코드에서
+	IDC_EDIT1와 m_my_string을 연결
+
+	UpdateData(TRUE);쓰면
+	IDC_EDIT1값이 m_my_string로 복사됨
+	*/
+#endif
+/*이전에 if0 endif처리했던 방법보다 아래의 방법이 좋다.*/
+	CString str;
+	GetDlgItemText(IDC_EDIT1,str); 
+	/*
+	IDC_EDIT1에 있는 문자열을 읽어서 str에 저장
+	반환값은 크기다.
+	int len = GetDlgItemText(IDC_EDIT1,str);써도됨
+
+	int형 쓰고싶으면 
+	GetDlgItemInt(IDC_EDIT1);
+	*/
+	AfxMessageBox(str);
+#if 0
+	//2.
+	//wchar기반의 배열로 받으려면 아래처럼 쓰면된다.
+	//단 배열로 쓸려면 크기가 중요하겠지!
+	wchar_t str[24];
+	GetDlgItemText(IDC_EDIT1, str, 24);
+#endif
+#if 0
+	//3.
+	CWnd* p = GetDlgItem(IDC_EDIT1);
+	/*
+	GetDlgItem의 반환값은 CWnd포인터
+	IDC_EDIT1클래스가 다형성에 의해서 부모클래스인 CWnd포인터를 반환하는 것
+	사실은 CWnd지만 내부적으로 보면 Edit_control
+	*/
+	CEdit* p_edit = (CEdit*)p;
+#endif
+
+#if 0
+	//4.
+	/*
+	이렇게 바로 쓸수도 있다.
+	CEdit클래스 고유 성격을 유지(CEdit클래스가 제공하는 함수 사용가능)
+	*/
+	CEdit* p_edit= (CEdit*)GetDlgItem(IDC_EDIT1);
+#endif
+#if 0
+	//5.
+	/*
+	이렇게 크기를 설정할수 있다.
+	*/
+	CWnd* p = GetDlgItem(IDC_EDIT1);
+	int len = p->SendMessage(WM_GETTEXTLENGTH);
+	if (len > 3)
+	{
+		AfxMessageBox(L"너무 길게 입력했습니다.");
+	}
+	else
+	{
+		GetDlgItemText(IDC_EDIT1, str, 24);
+		AfxMessageBox(str);
+	}
+#endif
+#if 0
+	//6.
+	/*
+	이렇게도 가능하다.
+	*/
+	CWnd* p = GetDlgItem(IDC_EDIT1);
+	int len = p->GetWindowTextLength();
+	if (len > 3)
+	{
+		AfxMessageBox(L"너무 길게 입력했습니다.");
+	}
+	else
+	{
+		GetDlgItemText(IDC_EDIT1, str, 24);
+		AfxMessageBox(str);
+	}
+#endif
+#if 0
+	//7.
+	/*
+	이렇게도 가능하다.
+	*/
+	int len = GetDlgItem(IDC_EDIT1)->GetWindowTextLength();
+	if (len > 3)
+	{
+		AfxMessageBox(L"너무 길게 입력했습니다.");
+	}
+	else
+	{
+		GetDlgItemText(IDC_EDIT1, str, 24);
+		AfxMessageBox(str);
+	}
+#endif
+}
+
+
+void CPracMFCDlg::OnBnClickedWriteBtn()
+{
+#if 0
+	//1.
+	m_my_string = L"tipsware";
+	UpdateData(false);
+	/*
+	UpdateData(FALSE);쓰면
+	m_my_string값이 IDC_EDIT1로 복사됨
+	*/
+#endif
+	SetDlgItemText(IDC_EDIT1, L"tipsware");
+}
+
+
+void CPracMFCDlg::OnEnChangeEdit1()
 {
 	// TODO:  RICHEDIT 컨트롤인 경우, 이 컨트롤은
 	// CDialogEx::OnInitDialog() 함수를 재지정 
