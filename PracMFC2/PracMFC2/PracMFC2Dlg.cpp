@@ -59,6 +59,7 @@ CPracMFC2Dlg::CPracMFC2Dlg(CWnd* pParent /*=nullptr*/)
 void CPracMFC2Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_COUNT_LIST, m_count_list);/*1◆변수 추가*/
 }
 
 BEGIN_MESSAGE_MAP(CPracMFC2Dlg, CDialogEx)
@@ -76,7 +77,7 @@ BOOL CPracMFC2Dlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	/*■*/
+	/*2■*/
 	wchar_t *p_item_name[MAX_ITEM_COUNT] ={
 		L"아메리카노  1900원", L"카페라떼         2500원",
 		L"카페모카    2800원", L"카라멜마끼아또   3200원",
@@ -84,15 +85,17 @@ BOOL CPracMFC2Dlg::OnInitDialog()
 		L"카푸치노    3300원", L"비엔나           3500원"
 	};
 
-	int price[8] = { 1900,2500,2800,3200,1800,3500,3300,3500 };
+	int price[8] = { 1900,2500,2800,3200,1800,3500,3300,3500 };/*6■*/
 
-	m_item_list.SubclassDlgItem(IDC_ITEM_LIST, this);  /*■IDC_ITEM_LIST와 m_item_list객체를 연결*/
-	m_item_list.SetItemHeight(0, 24); /*■체크박스끼리 거리 조절*/
+	m_item_list.SubclassDlgItem(IDC_ITEM_LIST, this);  /*1■IDC_ITEM_LIST와 m_item_list객체를 연결*/
+
+	m_item_list.SetItemHeight(0, 24); /*3■체크박스끼리 거리 조절*/
+	m_count_list.SetItemHeight(0, 24); /*3◆체크박스끼리 거리 조절*/
 	for (int i = 0; i < MAX_ITEM_COUNT; i++)
 	{
-		m_item_list.InsertString(i, p_item_name[i]);/*■리스트박스에 추가*/
-		m_item_list.SetItemData(i, price[i]);/*■4바이트 확장공간에 값을 쓴다. GetItemData(i)로 바로 값 얻을 수 있다.*/
-
+		m_item_list.InsertString(i, p_item_name[i]);/*4■리스트박스에 추가*/
+		m_item_list.SetItemData(i, price[i]);/*7■4바이트 확장공간에 값을 쓴다. GetItemData(i)로 바로 값 얻을 수 있다.*/
+		m_count_list.InsertString(i, L"0");/*2◆0으로추가*/
 	}
 
 	// 시스템 메뉴에 "정보..." 메뉴 항목을 추가합니다.
@@ -227,18 +230,66 @@ void CPracMFC2Dlg::OnBnClickedShowBtn()
 	SetDlgItemText(IDC_NUM_LIST_EDIT, total_str);
 }
 
-/*■리스트박스 오른쪽클릭해서 이벤트 처리기 추가로 만들었다.
-이 항목을 선택할때마다 메세지 발생한다*/
-void CPracMFC2Dlg::OnLbnSelchangeItemList()
+/*6◆이건 직접 쳐줬다. 헤더파일에도 추가함*/
+void CPracMFC2Dlg::CalcTotalPrice()
 {
+	/*7◆void CPracMFC2Dlg::OnLbnSelchangeItemList()에 있던코드를 여기로 옮김*/
 	int count = m_item_list.GetCount();
 	int total_price = 0;
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < count; i++)/*8■*/
 	{
-		if (m_item_list.GetCheck(i))
+		if (m_item_list.GetCheck(i))/*체크유무 확인*/
 		{
-			total_price += total_price+= m_item_list.GetItemData(i);
+			total_price += total_price += m_item_list.GetItemData(i);/*9■GetItemData()로 값을 얻음*/
 		}
 	}
 	SetDlgItemInt(IDC_TOTAL_PRICE_EDIT, total_price);
+
+}
+
+/*13◆함수로 추가함*/
+void CPracMFC2Dlg::ChangeText(CListBox *ap_list_box,int a_index, const wchar_t *ap_string)
+{
+	ap_list_box->DeleteString(a_index);
+	ap_list_box->InsertString(a_index, ap_string);
+	ap_list_box->SetCurSel(a_index);
+}
+
+/*5■리스트박스 오른쪽클릭해서 이벤트 처리기 추가로 만들었다.
+이 항목을 선택할때마다 메세지 발생한다*/
+void CPracMFC2Dlg::OnLbnSelchangeItemList()
+{
+	CalcTotalPrice();/*8◆이걸로 함*/
+	int index = m_item_list.GetCurSel();/*4◆m_item_list의 커서 얻기*/
+	m_count_list.SetCurSel(index);/*5◆m_item_list와 커서연결을 함*/
+
+	CString str;
+	m_count_list.GetText(index, str);/*9◆m_count_list[index]에 있는 문자열을 str로 가져옴*/
+	int item_count = _wtoi(str); /*str의 문자열을 숫자로 바꿔줌*/
+	
+	/*10◆체크되면 수량1로하고 해제하면 0으로 하는 조건문 추가*/
+	if (m_item_list.GetCheck(index))
+	{
+		if (item_count == 0)
+		{
+#if 0
+			m_count_list.DeleteString(index);/*11◆지우고 추가함*/
+			m_count_list.InsertString(index, L"1");
+			m_count_list.SetCurSel(index);
+#endif
+			ChangeText(&m_count_list, index, L"1");/*13◆함수사용*/
+		}
+	}
+	else
+	{
+		if (item_count != 0)
+		{
+#if 0
+			m_count_list.DeleteString(index);;/*12◆지우고 추가함*/
+			m_count_list.InsertString(index, L"0");
+			m_count_list.SetCurSel(index);
+#endif
+			ChangeText(&m_count_list, index, L"0");/*14◆함수사용*/
+		}
+	}
 }

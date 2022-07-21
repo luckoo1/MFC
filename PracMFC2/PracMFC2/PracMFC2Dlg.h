@@ -13,6 +13,9 @@ private:
 public:
 	CPracMFC2Dlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
 
+	void CalcTotalPrice();
+	void ChangeText(CListBox* ap_list_box, int a_index, const wchar_t* ap_string);
+
 // 대화 상자 데이터입니다.
 #ifdef AFX_DESIGN_TIME
 	enum { IDD = IDD_PRACMFC2_DIALOG };
@@ -35,4 +38,5 @@ protected:
 public:
 	afx_msg void OnBnClickedShowBtn();
 	afx_msg void OnLbnSelchangeItemList();
+	CListBox m_count_list;
 };

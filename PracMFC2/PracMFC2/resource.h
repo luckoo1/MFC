@@ -20,8 +20,8 @@
 #define IDC_NUM_LIST_EDIT               1011
 #define IDC_SHOW_BTN                    1012
 #define IDC_ITEM_LIST                   1015
-#define IDC_EDIT6                       1016
 #define IDC_TOTAL_PRICE_EDIT            1016
+#define IDC_COUNT_LIST                  1017
 
 // Next default values for new objects
 // 
@@ -29,7 +29,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        131
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1017
+#define _APS_NEXT_CONTROL_VALUE         1018
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
