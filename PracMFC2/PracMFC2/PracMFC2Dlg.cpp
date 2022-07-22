@@ -60,6 +60,7 @@ void CPracMFC2Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_COUNT_LIST, m_count_list);/*1◆변수 추가*/
+	DDX_Control(pDX, IDC_COUNT_SPIN, m_count_spin);
 }
 
 BEGIN_MESSAGE_MAP(CPracMFC2Dlg, CDialogEx)
@@ -68,6 +69,7 @@ BEGIN_MESSAGE_MAP(CPracMFC2Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_SHOW_BTN, &CPracMFC2Dlg::OnBnClickedShowBtn)
 	ON_LBN_SELCHANGE(IDC_ITEM_LIST, &CPracMFC2Dlg::OnLbnSelchangeItemList)
+	ON_NOTIFY(UDN_DELTAPOS, IDC_COUNT_SPIN, &CPracMFC2Dlg::OnDeltaposCountSpin)
 END_MESSAGE_MAP()
 
 
@@ -76,6 +78,13 @@ END_MESSAGE_MAP()
 BOOL CPracMFC2Dlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+
+	m_count_spin.GetWindowRect(&m_spin_rect);
+	/*1♣ Spin control의 좌표를 얻어온다.
+	m_count_spin이 spin control에 변수 추가한것*/
+	ScreenToClient(&m_spin_rect);/*2♣ 대화상자 시작부분이 (0,0)이었던걸 회색부분을 (0,0)으로 잡아준다*/
+
+
 
 	/*2■*/
 	wchar_t *p_item_name[MAX_ITEM_COUNT] ={
@@ -236,11 +245,17 @@ void CPracMFC2Dlg::CalcTotalPrice()
 	/*7◆void CPracMFC2Dlg::OnLbnSelchangeItemList()에 있던코드를 여기로 옮김*/
 	int count = m_item_list.GetCount();
 	int total_price = 0;
+
+
+	CString str;
 	for (int i = 0; i < count; i++)/*8■*/
 	{
 		if (m_item_list.GetCheck(i))/*체크유무 확인*/
 		{
-			total_price += total_price += m_item_list.GetItemData(i);/*9■GetItemData()로 값을 얻음*/
+			m_count_list.GetText(i, str);
+			int item_count = _wtoi(str);/*9♣m_count_list()로 값을 얻어와서 정수로 바꾼걸 아래에 곱해줌*/
+			total_price += m_item_list.GetItemData(i)* item_count;/*9■GetItemData()로 값을 얻음*/
+			
 		}
 	}
 	SetDlgItemInt(IDC_TOTAL_PRICE_EDIT, total_price);
@@ -259,9 +274,14 @@ void CPracMFC2Dlg::ChangeText(CListBox *ap_list_box,int a_index, const wchar_t *
 이 항목을 선택할때마다 메세지 발생한다*/
 void CPracMFC2Dlg::OnLbnSelchangeItemList()
 {
+#if 0
+	/*10♣아래로 옮김 계산 결과가 바로 바로 반영되게 할수 있도록 */
 	CalcTotalPrice();/*8◆이걸로 함*/
+#endif
 	int index = m_item_list.GetCurSel();/*4◆m_item_list의 커서 얻기*/
-	m_count_list.SetCurSel(index);/*5◆m_item_list와 커서연결을 함*/
+	m_count_list.SetCurSel(index);/*5◆m_item_list와 커서연결을 해서 그 위치로 옮겨줌*/
+	m_count_spin.SetWindowPos(NULL,m_spin_rect.left, m_spin_rect.top+(index*24),0,0,SWP_NOSIZE);
+	/*3♣이걸로 spincontrol이동시켰다.*/
 
 	CString str;
 	m_count_list.GetText(index, str);/*9◆m_count_list[index]에 있는 문자열을 str로 가져옴*/
@@ -291,5 +311,38 @@ void CPracMFC2Dlg::OnLbnSelchangeItemList()
 #endif
 			ChangeText(&m_count_list, index, L"0");/*14◆함수사용*/
 		}
+	}
+
+	CalcTotalPrice();/*11♣*/
+}
+
+
+/*4♣Spin Control에서 이벤트처리기로 UDN_DELTAPOS추가함*/
+void CPracMFC2Dlg::OnDeltaposCountSpin(NMHDR * pNMHDR, LRESULT * pResult)
+{
+	LPNMUPDOWN pNMUpDown = reinterpret_cast<LPNMUPDOWN>(pNMHDR);
+	*pResult = 0;
+
+	/*6♣선택된 위치의 index를 얻어오면 문자열이니 그 문자열을 int로 바꿔주는 과정*/
+	int index = m_item_list.GetCurSel();
+	if (LB_ERR != index &&m_item_list.GetCheck(index)) { /*8♣리스트박스 에러가 없거나 리스트박스 체크유무 확인*/
+		CString str;
+		m_count_list.GetText(index, str);
+		int item_count = _wtoi(str);
+
+		/*5♣버튼을 눌렀을때 양수,음수로 나뉘어서 들어온다.*/
+		if (pNMUpDown->iDelta > 0){
+			if (item_count > 1) {
+				item_count -= 1;
+			}
+		}
+		else{
+			if (item_count < 100) {
+				item_count += 1;
+			}
+		}
+		str.Format(L"%d", item_count);
+		ChangeText(&m_count_list, index, str); /*7♣str을 count_list에 반영*/
+		CalcTotalPrice();/*12♣스핀을 눌렀을때도 동작하게 하기위해서 여기도 추가*/
 	}
 }

@@ -10,6 +10,7 @@ class CPracMFC2Dlg : public CDialogEx
 {
 private:
 	CCheckListBox m_item_list;  /*■이거추가함*/
+	CRect m_spin_rect;/*♣이거추가함*/
 public:
 	CPracMFC2Dlg(CWnd* pParent = nullptr);	// 표준 생성자입니다.
 
@@ -39,4 +40,6 @@ public:
 	afx_msg void OnBnClickedShowBtn();
 	afx_msg void OnLbnSelchangeItemList();
 	CListBox m_count_list;
+	CSpinButtonCtrl m_count_spin;
+	afx_msg void OnDeltaposCountSpin(NMHDR* pNMHDR, LRESULT* pResult);
 };
